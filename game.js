@@ -50,6 +50,7 @@
     stop(); show('result');
     const won = score >= TARGET;
     winRecord = won ? {runId: (crypto.randomUUID ? crypto.randomUUID() : Date.now()+'-'+Math.random().toString(36).slice(2)), score, completedAt: new Date(), submitted:false} : null;
+    track(won?'game_win':'game_lose',{score});
     $('timer').textContent='0';$('progress').style.width='0%';
     $('resultIcon').setAttribute('href',won?'#pumpkin':'#sad-ghost');
     $('result').setAttribute('data-outcome',won?'won':'lost');
@@ -78,7 +79,7 @@
     }
     frame=requestAnimationFrame(tick);
   }
-  function start(){stop();show('game');score=0;serial=0;$('score').textContent='0';$('timer').textContent='30';$('progress').style.width='100%';running=true;started=performance.now();lastFrame=started;nextSpawn=started+500;spawn();frame=requestAnimationFrame(tick);}
+  function start(){track('game_start');stop();show('game');score=0;serial=0;$('score').textContent='0';$('timer').textContent='30';$('progress').style.width='100%';running=true;started=performance.now();lastFrame=started;nextSpawn=started+500;spawn();frame=requestAnimationFrame(tick);}
   document.querySelectorAll('.start').forEach(b=>b.addEventListener('click',start));
   document.querySelectorAll('.home').forEach(b=>b.addEventListener('click',()=>{stop();show('home');}));
   $('exit').addEventListener('click',()=>{stop();show('home');});
@@ -113,7 +114,7 @@
       }else{$('formError').textContent='未能确认登记成功，请重试。';}
     }
     clearTimeout(t);rec.submitting=false;btn.disabled=false;
-    if(ok){rec.submitted=true;show('submitted');$('submittedId').textContent=value;}
+    if(ok){track('register_success');rec.submitted=true;show('submitted');$('submittedId').textContent=value;}
   });
   document.addEventListener('visibilitychange',()=>{if(running&&!document.hidden&&performance.now()-started>=DURATION)finish();});
 })();
